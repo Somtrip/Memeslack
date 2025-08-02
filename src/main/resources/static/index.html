@@ -1,0 +1,223 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>Xmeme | Meme Gallery</title>
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <style>
+        body {
+            background: #10182b;
+            color: #fff;
+            font-family: 'Segoe UI', Arial, sans-serif;
+            margin: 0;
+            padding: 0;
+        }
+        header {
+            padding: 2rem 0 1rem 0;
+            text-align: center;
+            font-size: 2rem;
+            font-weight: bold;
+            color: #fff;
+        }
+        .container {
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            margin-bottom: 2rem;
+        }
+        .section-title {
+            font-size: 2.5rem;
+            font-weight: bold;
+            margin-bottom: 0.5rem;
+            color: #fff;
+            text-align: center;
+        }
+        .section-subtitle {
+            color: #3b82f6;
+            margin-bottom: 2rem;
+            text-align: center;
+        }
+        .card {
+            background: #151e34;
+            border-radius: 1.5rem;
+            box-shadow: 0 4px 32px 0 rgba(59, 130, 246, 0.15);
+            padding: 1.5rem 2rem;
+            max-width: 500px;
+            width: 100%;
+            margin-bottom: 2rem;
+            border-left: 5px solid #3b82f6;
+            display: flex;
+            flex-direction: column;
+            align-items: flex-start;
+        }
+        .meme-img {
+            width: 100%;
+            max-height: 300px;
+            object-fit: contain;
+            border-radius: 1rem;
+            margin-bottom: 1rem;
+            background: #222b44;
+        }
+        .meme-title {
+            color: #3b82f6;
+            font-size: 1.2rem;
+            font-weight: bold;
+            margin-bottom: 0.5rem;
+        }
+        .meme-caption {
+            font-size: 1rem;
+            margin-bottom: 0.5rem;
+        }
+        .meme-actions {
+            margin-top: 0.5rem;
+            width: 100%;
+            display: flex;
+            justify-content: flex-end;
+            gap: 1rem;
+        }
+        .btn {
+            background: #3b82f6;
+            color: #fff;
+            border: none;
+            border-radius: 0.7rem;
+            padding: 0.5rem 1.2rem;
+            font-size: 1rem;
+            cursor: pointer;
+            transition: background 0.2s;
+        }
+        .btn:hover {
+            background: #2563eb;
+        }
+        .form-card {
+            background: #151e34;
+            border-radius: 1.5rem;
+            box-shadow: 0 4px 32px 0 rgba(59, 130, 246, 0.15);
+            padding: 2rem 2rem 1.5rem 2rem;
+            max-width: 500px;
+            width: 100%;
+            margin-bottom: 2rem;
+            border-left: 5px solid #3b82f6;
+            display: flex;
+            flex-direction: column;
+            align-items: flex-start;
+        }
+        .form-card label {
+            margin-bottom: 0.3rem;
+            color: #3b82f6;
+            font-weight: 500;
+        }
+        .form-card input {
+            width: 100%;
+            padding: 0.5rem;
+            margin-bottom: 1rem;
+            border-radius: 0.5rem;
+            border: none;
+            background: #222b44;
+            color: #fff;
+            font-size: 1rem;
+        }
+        .form-card input:focus {
+            outline: 2px solid #3b82f6;
+        }
+        .error {
+            color: #ff6b6b;
+            margin-bottom: 1rem;
+        }
+        @media (max-width: 700px) {
+            .card, .form-card {
+                padding: 1rem 0.7rem;
+                max-width: 95vw;
+            }
+            .section-title {
+                font-size: 2rem;
+            }
+        }
+    </style>
+</head>
+<body>
+    <header>Xmeme Gallery</header>
+    <div class="container">
+        <div class="section-title">Memes</div>
+        <div class="section-subtitle">Share and browse memes!</div>
+        <form class="form-card" id="memeForm">
+            <div class="error" id="formError"></div>
+            <label for="name">Name</label>
+            <input type="text" id="name" placeholder="Your name" required>
+            <label for="caption">Caption</label>
+            <input type="text" id="caption" placeholder="Meme caption" required>
+            <label for="url">Image URL</label>
+            <input type="url" id="url" placeholder="https://example.com/meme.jpg" required>
+            <button class="btn" type="submit">Post Meme</button>
+        </form>
+        <div id="memesList"></div>
+    </div>
+    <script>
+        // Fetch and display memes
+        async function fetchMemes() {
+            const res = await fetch('/memes');
+            const memes = await res.json();
+            const memesList = document.getElementById('memesList');
+            memesList.innerHTML = '';
+            memes.forEach((meme, idx) => {
+                const card = document.createElement('div');
+                card.className = 'card';
+                card.innerHTML = `
+                    <img class="meme-img" src="${meme.url}" alt="Meme image" onerror="this.src='https://via.placeholder.com/400x200?text=No+Image';">
+                    <div class="meme-title">${meme.name}</div>
+                    <div class="meme-caption">${meme.caption}</div>
+                    <div class="meme-actions">
+                        <button class="btn" onclick="deleteMeme('${meme.id || idx}')">Delete</button>
+                    </div>
+                `;
+                memesList.appendChild(card);
+            });
+        }
+
+        // Post meme
+        document.getElementById('memeForm').addEventListener('submit', async function(e) {
+            e.preventDefault();
+            document.getElementById('formError').textContent = '';
+            const name = document.getElementById('name').value.trim();
+            const caption = document.getElementById('caption').value.trim();
+            const url = document.getElementById('url').value.trim();
+            if (!name || !caption || !url) {
+                document.getElementById('formError').textContent = 'All fields are required.';
+                return;
+            }
+            try {
+                const res = await fetch('/memes', {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({ name, caption, url })
+                });
+                if (res.status === 409) {
+                    document.getElementById('formError').textContent = 'Meme already exists!';
+                } else if (res.status === 400) {
+                    document.getElementById('formError').textContent = 'Invalid input!';
+                } else if (res.ok) {
+                    document.getElementById('memeForm').reset();
+                    fetchMemes();
+                } else {
+                    document.getElementById('formError').textContent = 'Failed to post meme.';
+                }
+            } catch {
+                document.getElementById('formError').textContent = 'Network error.';
+            }
+        });
+
+        // Delete meme
+        async function deleteMeme(id) {
+            if (!confirm('Delete this meme?')) return;
+            const res = await fetch(`/memes/${id}`, { method: 'DELETE' });
+            if (res.status === 204) {
+                fetchMemes();
+            } else {
+                alert('Failed to delete meme.');
+            }
+        }
+
+        // Initial load
+                fetchMemes();
+    </script>
+</body>
+</html>
