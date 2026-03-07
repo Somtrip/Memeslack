@@ -15,6 +15,7 @@
   - `POST /memes` – to post new memes
   - `GET /memes` – to retrieve the latest 100 memes
   - `GET /memes/{id}` – to fetch an individual meme by ID
+  - `DELETE /memes/{id}` -to delete an individual meme by ID
 - Used MongoDB to persist meme data.
 - Designed APIs to return: `name`, `caption`, and `url`.
 - Followed proper HTTP standards for status codes and error messages.
@@ -23,19 +24,20 @@
 
 ## 💻 Technologies Used
 
-- Java 11+
+- Java 21
 - Spring Boot
 - MongoDB
 - REST API
 - HTML/CSS (frontend)
 - Jackson
 - Lombok
+- Sprint Data
 
 ## 🚀 How to Run
 
 ### Prerequisites
 
-- Java 11+
+- Java 21+
 - Maven or Gradle
 - MongoDB running on `localhost:27017`
 
@@ -55,7 +57,7 @@ server.port=8080
 ./mvnw spring-boot:run
 ```
 
-Visit frontend at: [http://localhost:8080/index.html](http://localhost:8080/index.html)
+Visit frontend at: [http://localhost:8080](http://localhost:8080)
 
 ## 🧪 API Endpoints
 
@@ -64,3 +66,4 @@ Visit frontend at: [http://localhost:8080/index.html](http://localhost:8080/inde
 | POST   | `/memes`         | Submit a new meme                |
 | GET    | `/memes`         | Get the latest 100 memes         |
 | GET    | `/memes/{id}`    | Get details of a meme by its ID  |
+| DELETE | `/memes/{id}`    | Delete meme by its ID            |
