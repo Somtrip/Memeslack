@@ -6,7 +6,7 @@ import lombok.NoArgsConstructor;
 import org.springframework.data.annotation.Id;
 import org.springframework.data.mongodb.core.mapping.Document;
 
-import java.time.LocalTime;
+import java.time.LocalDateTime;
 
 @Data
 @AllArgsConstructor
@@ -18,5 +18,5 @@ public class MemesEntity {
     private String name;
     private String url;
     private String caption;
-    private LocalTime createdAt;
+    private LocalDateTime createdAt;
 }

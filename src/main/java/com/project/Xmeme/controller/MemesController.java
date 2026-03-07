@@ -13,7 +13,8 @@ import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RestController;
 
 import com.project.Xmeme.data.MemesEntity;
-import com.project.Xmeme.exchange.GetMemeRequest;
+import com.project.Xmeme.exchange.CreateMemeResponse;
+import com.project.Xmeme.exchange.MemeCreateRequest;
 import com.project.Xmeme.exchange.GetMemesResponse;
 import com.project.Xmeme.service.MemesService;
 
@@ -23,43 +24,40 @@ public class MemesController {
     @Autowired
     private MemesService memesService;
 
-
-
     @PostMapping("/memes")
-    public ResponseEntity<GetMemeRequest> createMeme(@RequestBody MemesEntity meme){
-        System.out.println(meme.getName() + " " + meme.getCaption());
-        if(meme == null || meme.getName() == null || meme.getUrl() == null || meme.getCaption() == null){
+    public ResponseEntity<CreateMemeResponse> createMeme(@RequestBody MemeCreateRequest meme) {
+        if (meme == null || meme.getName() == null || meme.getUrl() == null || meme.getCaption() == null) {
             return ResponseEntity.status(400).build();
-        } else if(memesService.isMemeAvailable(meme)){
+        }
+        System.out.println(meme.getName() + " " + meme.getCaption());
+        if (memesService.isMemeAvailable(meme)) {
             return ResponseEntity.status(409).build();
         } else {
-            GetMemeRequest newMemeId = memesService.createMeme(meme);
+            CreateMemeResponse newMemeId = memesService.createMeme(meme);
             return ResponseEntity.ok().body(newMemeId);
         }
     }
 
     @GetMapping("/memes")
-    public ResponseEntity<List<GetMemesResponse>> getTopMemes(){
+    public ResponseEntity<List<GetMemesResponse>> getTopMemes() {
         List<GetMemesResponse> memes = memesService.getMemes();
         return ResponseEntity.ok().body(memes);
     }
 
-     @GetMapping("/memes/{id}")
-    public ResponseEntity<GetMemesResponse> getMemeById(@PathVariable String id){
+    @GetMapping("/memes/{id}")
+    public ResponseEntity<GetMemesResponse> getMemeById(@PathVariable String id) {
         MemesEntity meme = memesService.getMeme(id);
-        if(meme != null){
+        if (meme != null) {
             GetMemesResponse getMeme = new GetMemesResponse(
-                meme.getId(),           // <-- Add id here
-                meme.getName(),
-                meme.getCaption(),
-                meme.getUrl()
-            );
+                    meme.getId(), // <-- Add id here
+                    meme.getName(),
+                    meme.getCaption(),
+                    meme.getUrl());
             return ResponseEntity.ok().body(getMeme);
         } else {
             return ResponseEntity.status(404).build();
         }
     }
-
 
     @DeleteMapping("/memes/{id}")
     public ResponseEntity<Void> deleteMemeById(@PathVariable String id) {
